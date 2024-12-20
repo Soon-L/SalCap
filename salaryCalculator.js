@@ -113,3 +113,42 @@ document.getElementById('calculateButton').addEventListener('click', function ()
 });
 
 
+
+
+// 새로운 탭 생성 이벤트
+document.getElementById('tabButtons').addEventListener('click', function () {
+    const tabContents = document.getElementById('tabContents');
+    const employeeName = document.getElementById('employeeName'); // 직원 이름
+    //const recordDiv = document.querySelectorAll('.input-group'); // 근무 기록
+    const wagePerMinute = document.getElementById('wagePerMinute'); // 분당 급여
+    const withholdingTaxChecked = document.getElementById('withholdingTax'); // 원천징수 체크 여부
+    const result = document.getElementById('result'); // 계산 결과 
+
+    if (!result.textContent) {
+        alert("먼저 계산해주세요.");
+        return;
+    }
+
+        // 계산한 근로자 탭 라벨 생성성
+        const tabLabel = document.createElement('button');
+        tabLabel.className = 'btn tabLabel';
+        tabLabel.textContent = `${employeeName.value}`;
+
+        // 부모자식 설정
+        tabContents.appendChild(tabLabel);
+
+
+        // 기존 탭 정보 리셋
+        employeeName.value = ''; // 직원 이름
+        wagePerMinute.value = ''; // 분당 급여
+        withholdingTaxChecked.checked = false; // 원천징수
+        result.style.display = 'none'; // 결과 안보이게 처리
+
+        // 근무 기록 리셋
+        recordDiv.remove(); 
+
+});
+
+
+
+
