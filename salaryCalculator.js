@@ -119,7 +119,6 @@ document.getElementById('calculateButton').addEventListener('click', function ()
 document.getElementById('tabButtons').addEventListener('click', function () {
     const tabContents = document.getElementById('tabContents');
     const employeeName = document.getElementById('employeeName'); // 직원 이름
-    //const recordDiv = document.querySelectorAll('.input-group'); // 근무 기록
     const wagePerMinute = document.getElementById('wagePerMinute'); // 분당 급여
     const withholdingTaxChecked = document.getElementById('withholdingTax'); // 원천징수 체크 여부
     const result = document.getElementById('result'); // 계산 결과 
@@ -129,7 +128,7 @@ document.getElementById('tabButtons').addEventListener('click', function () {
         return;
     }
 
-        // 계산한 근로자 탭 라벨 생성성
+        // 계산한 근로자 탭 라벨 생성
         const tabLabel = document.createElement('button');
         tabLabel.className = 'btn tabLabel';
         tabLabel.textContent = `${employeeName.value}`;
@@ -144,8 +143,6 @@ document.getElementById('tabButtons').addEventListener('click', function () {
         withholdingTaxChecked.checked = false; // 원천징수
         result.style.display = 'none'; // 결과 안보이게 처리
 
-        // 근무 기록 리셋
-        recordDiv.remove(); 
 
 });
 
