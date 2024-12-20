@@ -1,0 +1,2 @@
+# SalCap
+Modern Salary Calculator
