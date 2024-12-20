@@ -36,10 +36,19 @@ document.getElementById('addWorkRecordButton').addEventListener('click', functio
     endWrapper.appendChild(endLabel);
     endWrapper.appendChild(endTimeInput);
 
+    // 근무 기록 삭제 버튼
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'btn delete';
+    deleteBtn.textContent = "삭제";
+    deleteBtn.addEventListener('click',function(){
+        deleteBtn.parentNode.remove();
+    })
+
     // DOM에 추가 (각 필드를 한 줄씩 출력)
     recordDiv.appendChild(dateWrapper);
     recordDiv.appendChild(startWrapper);
     recordDiv.appendChild(endWrapper);
+    recordDiv.appendChild(deleteBtn);
 
     workRecordsContainer.appendChild(recordDiv);
 });
