@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Salary Calculator</title>
+    <style>
+        /* Reset 기본 스타일 */
+body, h1, h2, h3, p, input, button {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #f6d365, #fda085); /* 밝은 그라데이션 배경 */
+    color: #333; /* 텍스트 색상 */
+    line-height: 1.6;
+}
+
+/* 헤더 스타일 */
+.header {
+    text-align: center;
+    padding: 20px 0;
+    background: linear-gradient(135deg, #00c6ff, #0072ff); /* 파란색 그라데이션 */
+    color: white;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.header h1 {
+    font-size: 2rem;
+}
+
+/* 메인 컨테이너 */
+.container {
+    max-width: 900px;
+    margin: 30px auto;
+}
+
+/* 카드 스타일 */
+.card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
+    border-radius: 12px;
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+    padding: 20px;
+}
+
+.card h2 {
+    margin-bottom: 15px;
+}
+
+/* Glassmorphism 효과 */
+.glass-effect {
+    backdrop-filter: blur(10px);
+}
+
+/* 폼 그룹 */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+}
+
+.form-group input[type='text'],
+.form-group input[type='number'] {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 6px;
+    border: none;
+}
+
+/* 체크박스 그룹 */
+.checkbox-group {
+    display: flex;
+    align-items: center; /* 수직 정렬 */
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center; /* 수직 정렬 */
+}
+
+.checkbox-label input[type='checkbox'] {
+    margin-right: 10px; /* 체크박스와 텍스트 간격 */
+}
+
+/* 버튼 스타일 */
+.btn {
+    display: inline-block;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.btn.primary {
+    background-color: #ff6f61; /* 밝은 빨간색 버튼 */
+}
+
+.btn.success {
+    background-color: #28a745; /* 초록색 버튼 */
+}
+
+.btn:hover {
+   transform : scale(.95) ;
+   opacity : .75 ;
+}
+
+/* 결과 카드 */
+.result-card {
+   text-align:center ;
+}
+/* 근무 기록 컨테이너 */
+.work-records-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* 각 기록 간의 간격 */
+}
+
+/* 입력 그룹 스타일 */
+.input-group {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+}
+/* 레이블 스타일 */
+.input-group label {
+    font-weight: bold;
+    color: #555;
+}
+
+/* 인풋 필드 스타일 */
+.input-group input {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+/* 버튼 스타일 */
+.btn.primary {
+    background-color: #4CAF50; /* 초록색 */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn.primary:hover {
+    background-color: #45a049; /* Hover 색상 */
+}
+
+/* 애니메이션 효과 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.input-group {
+    animation: fadeIn 0.3s ease-in-out; /* 카드가 나타날 때 애니메이션 */
+}
+
+.field-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.field-wrapper label {
+    font-weight: bold;
+}
+
+.field-wrapper input {
+    margin-top: 5px;
+    padding: 8px;
+    border-radius: 5px;
+}
+
+    </style>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <h1>💼 Modern Salary Calculator</h1>
+    </header>
+
+    <main class="container">
+        <!-- 직원 정보 입력 -->
+        <section class="card glass-effect">
+            <h2>직원 정보</h2>
+            <div class="form-group">
+                <label for="employeeName">직원 이름:</label>
+                <input type="text" id="employeeName" placeholder="직원 이름 입력">
+            </div>
+        </section>
+
+        <!-- 근무 기록 -->
+        <section class="card glass-effect">
+            <h2>근무 기록</h2>
+            <div id="workRecordsContainer" class="work-records-container"></div>
+            <button id="addWorkRecordButton" class="btn primary">+ 근무 기록 추가</button>
+        </section>
+        <!-- 급여 계산 -->
+        <section class="card glass-effect">
+            <h2>급여 설정</h2>
+            <div class="form-group">
+                <label for="wagePerMinute">분당 급여 (원):</label>
+                <input type="number" id="wagePerMinute" placeholder="예: 217">
+            </div>
+            <!-- 체크박스와 텍스트를 가로 정렬 -->
+            <div class="form-group checkbox-group">
+                <label for="withholdingTax" class="checkbox-label">
+                    <input type="checkbox" id="withholdingTax"> 3.3% 원천징수 적용
+                </label>
+            </div>
+            <button id="calculateButton" class="btn success">계산하기</button>
+        </section>
+
+        <!-- 결과 출력 -->
+        <section class="card glass-effect result-card">
+            <h2>결과</h2>
+            <div id="result"></div>
+        </section>
+
+        <!-- 탭 컨테이너 -->
+        <section class="tab-container glass-effect">
+            <div id="tabButtons"></div>
+            <div id="tabContents"></div>
+        </section>
+    </main>
+
+    <!-- JavaScript 연결 -->
+    <script src="salaryCalculator.js"></script>
+</body>
+</html>
