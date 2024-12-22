@@ -107,26 +107,41 @@ document.getElementById('calculateButton').addEventListener('click', function ()
         totalSalary *= (1 - 0.033); // 원천징수 적용
     }
 
+    // 2024.12.21 계산시 결과 보여주기 추가 - 이순
     // 결과 출력
     document.getElementById('result').textContent =
         `${employeeName}님의 총 근무 시간은 ${totalMinutesWorked}분이며, 총 급여는 ${totalSalary.toLocaleString()}원입니다.`;
+        result.style.display = 'block'; // 결과 보여줌
 });
 
 
 
-
+// 2024.12.21 테이블 정보 추가 - 이순
 // 새로운 탭 생성 이벤트
-document.getElementById('tabButtons').addEventListener('click', function () {
-    const tabContents = document.getElementById('tabContents');
+document.getElementById('tabAddButton').addEventListener('click', function () {
+    const tabButtons = document.getElementById('tabButtons'); // 추가된 탭
+    const tabContents = document.getElementById('tabContents'); // 추가된 탭 클릭시 내용 들어올 곳
     const employeeName = document.getElementById('employeeName'); // 직원 이름
     const wagePerMinute = document.getElementById('wagePerMinute'); // 분당 급여
+    const workRecords = document.querySelectorAll('#workRecordsContainer .input-group'); // 근무 정보
     const withholdingTaxChecked = document.getElementById('withholdingTax'); // 원천징수 체크 여부
-    const result = document.getElementById('result'); // 계산 결과 
+    const result = document.getElementById('result'); // 계산 결과
+    const count = document.getElementById('count');
+    let totalMinutesWorked = 0;
+    
 
-    if (!result.textContent) {
-        alert("먼저 계산해주세요.");
-        return;
-    }
+
+        // 예외처리(이름, 분당급여)
+        if (!employeeName.value) {
+            alert("직원 이름을 입력하세요.");
+            return;
+        }
+
+        if (isNaN(wagePerMinute.value) || wagePerMinute.value <= 0) {
+            alert("유효한 분당 급여를 입력하세요.");
+            return;
+        }
+    
 
         // 계산한 근로자 탭 라벨 생성
         const tabLabel = document.createElement('button');
@@ -134,8 +149,100 @@ document.getElementById('tabButtons').addEventListener('click', function () {
         tabLabel.textContent = `${employeeName.value}`;
 
         // 부모자식 설정
-        tabContents.appendChild(tabLabel);
+        tabButtons.appendChild(tabLabel);
 
+
+        // 근무 정보 추출
+        workRecords.forEach(record => {
+            const dateInput = record.querySelector('input[type=date]').value;
+            const startTimeInput = record.querySelector('input[type=time]').value;
+            const endTimeInput = record.querySelectorAll('input[type=time]')[1].value;
+
+            // 예외처리(날짜 시간)
+            if (!dateInput || !startTimeInput || !endTimeInput) {
+                alert("모든 날짜와 시간을 입력하세요.");
+                return;
+            }
+    
+            // 시작 시간과 종료 시간을 Date 객체로 변환
+            const startDateTime = new Date(`${dateInput}T${startTimeInput}`);
+            const endDateTime = new Date(`${dateInput}T${endTimeInput}`);
+    
+            // 시간 차이를 분 단위로 계산
+            const minutesWorked = (endDateTime - startDateTime) / (1000 * 60); // 밀리초 -> 분 변환
+
+            // 예외처리(종료시간)
+            if (minutesWorked <= 0) {
+                alert("종료 시간이 시작 시간보다 빨라서는 안 됩니다.");
+                return;
+            }
+
+            // 총 근무 시간(분) 계산
+            totalMinutesWorked += minutesWorked; 
+            
+            // 총 급여 계산
+            let totalSalary = totalMinutesWorked * wagePerMinute.value;
+
+            // 원천징수 적용 여부 확인
+            if (withholdingTaxChecked) {
+            totalSalary = totalMinutesWorked * wagePerMinute.value * (1 - 0.033); // 원천징수 적용
+            }
+            
+            
+            // 테이블에 데이터 저장 이벤트
+            const table = document.getElementById('table');
+            const tableRow = document.createElement('tr');
+            const num = document.createElement('td'); // 카운트
+            num.className = 'table'; // 테이블 border 위해서 필요
+            const name = document.createElement('td'); // 근로자명
+            name.className = 'table';
+            const date = document.createElement('td'); // 근무일자
+            date.className = 'table';
+            const startTime = document.createElement('td'); // 시작시간
+            startTime.className = 'table';
+            const endTime = document.createElement('td'); // 종료시간
+            endTime.className = 'table';
+            const totalTime = document.createElement('td'); // 총 근무시간(분)
+            totalTime.className = 'table';
+            const minuteSalary = document.createElement('td'); // 분당급여
+            minuteSalary.className = 'table';
+            const tax = document.createElement('td'); // 원천징수
+            tax.className = 'table';
+            const allSalary = document.createElement('td'); // 총 급여
+            allSalary.className = 'table';
+    
+            // 부모자식 설정
+            table.appendChild(tableRow);
+            tableRow.appendChild(num)
+            tableRow.appendChild(name);
+            tableRow.appendChild(date);
+            tableRow.appendChild(startTime);
+            tableRow.appendChild(endTime);
+            tableRow.appendChild(totalTime)
+            tableRow.appendChild(minuteSalary);
+            tableRow.appendChild(tax);
+            tableRow.appendChild(allSalary);
+    
+    
+            // 2024.12.21 오류 수정 - 이순
+            //데이터 넣기
+            count.textContent = Number(count.textContent) + 1;
+            num.textContent = count.textContent; //1씩 증가 안됨
+            name.textContent = employeeName.value; // 이름
+            date.textContent = dateInput; // 근무일자
+            startTime.textContent = startTimeInput; // 시작시간
+            endTime.textContent = endTimeInput; // 종료시간
+            totalTime.textContent = minutesWorked;// 총 근무시간(분)
+            minuteSalary.textContent = wagePerMinute.value; // 분당급여
+            tax.textContent = 'X'; // 원천징수 안했을경우
+            allSalary.textContent = totalMinutesWorked * wagePerMinute.value;
+            // 원천징수 했을경우
+            if(withholdingTaxChecked.checked === true){
+                tax.textContent = 'O';
+                allSalary.textContent = totalMinutesWorked * wagePerMinute.value *(1 - 0.033);
+            } 
+            
+        });
 
         // 기존 탭 정보 리셋
         employeeName.value = ''; // 직원 이름
@@ -144,7 +251,40 @@ document.getElementById('tabButtons').addEventListener('click', function () {
         result.style.display = 'none'; // 결과 안보이게 처리
 
 
+
+
+
 });
+
+
+// 2024.12.22 탭 클릭시 정보 띄우기(반복 불가) - 이순
+// 탭 클릭시 정보 불러오기 이벤트
+let tabContents = document.getElementById('tabButtons');
+tabContents.addEventListener('click', function(){
+    let table = document.getElementById('table'); // 데이터 저장 테이블
+    let rowList = table.rows;
+    let tabLabelLength = tabContents.childElementCount;
+    let tabLabelList = tabContents.children;
+
+    for(let i = 1; i<rowList.length; i++){
+        for(let j = 0; j<tabLabelLength; j++){
+        let row = rowList[i];
+        let cell = row.cells[1];
+        let tabName = tabLabelList[j]
+
+        // 2024.12.22 수정중(한번만 클릭 가능) - 이순
+            if(cell.textContent == tabName.textContent){
+                let name = row.cells[1].textContent;
+                let totalMinutesWorked = row.cells[5].textContent;
+                let totalSalary = row.cells[8].textContent;
+                document.getElementById('tabContents').textContent = `${name}님의 총 근무 시간은 ${totalMinutesWorked}분이며, 총 급여는 ${totalSalary}원입니다.`;
+                tabContents.style.display = 'block'; // 결과 보여줌 
+            }
+        }
+    }
+    
+})
+
 
 
 

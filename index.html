@@ -89,6 +89,7 @@ body {
     margin-right: 10px; /* 체크박스와 텍스트 간격 */
 }
 
+/*2024.12.22 버튼 마진 추가 - 이순*/
 /* 버튼 스타일 */
 .btn {
     display: inline-block;
@@ -96,6 +97,7 @@ body {
     border-radius: 8px;
     text-align: center;
     cursor: pointer;
+    margin-right: 10px;
 }
 
 .btn.primary {
@@ -215,6 +217,11 @@ body {
     margin-bottom: 20px;
 }
 
+/*테이블 num 카운트*/
+.hidden{
+    display: none;
+}
+
 
     </style>
     <link rel="stylesheet" href="styles.css">
@@ -264,8 +271,10 @@ body {
 
         <!-- 탭 컨테이너 -->
         <section class="tab-container glass-effect">
+            <div id="tabButtons"></div>
             <div id="tabContents" class="tabContents"></div>
-            <button id="tabButtons" class="btn primary"> + 탭 추가 </button>
+            <div id="count" class="hidden"></div>
+            <button id="tabAddButton" class="btn primary"> + 탭 추가 </button>
         </section>
 
         <!--데이터 테이블-->
@@ -277,9 +286,10 @@ body {
                     <td class="table head data">근무일자</td>
                     <td class="table head data">시작 시간</td>
                     <td class="table head data">종료 시간</td>
+                    <td class="table head data">총 근무시간(분)</td>
                     <td class="table head data">분당 급여(원)</td>
                     <td class="table head data">원천징수여부</td>
-                    <td class="table head data">총 급여</td>
+                    <td class="table head data">총 급여(원)</td>
                 </tr>
             </table>
            </section>        
