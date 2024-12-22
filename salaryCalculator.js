@@ -249,8 +249,12 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
         wagePerMinute.value = ''; // 분당 급여
         withholdingTaxChecked.checked = false; // 원천징수
         result.style.display = 'none'; // 결과 안보이게 처리
-
-
+       
+        //////근무기록 input창 삭제(초기화)
+        const parent = document.getElementById('workRecordsContainer');
+        while(parent.firstChild)  {
+            parent.removeChild(parent.firstChild);
+        }
 
 
 
@@ -282,10 +286,61 @@ tabContents.addEventListener('click', function(){
             }
         }
     }
-    
 })
 
 
+// 2024.12.22 엑샐 내보내기 기능 - 승래
+document.getElementById('toExcel').addEventListener('click',function(){
+    // let fileNm = '근무기록' + '.xlsx';
+    // let sheetNm = 'sheet1';
+    // let wb = XLSX.utils.table_to_book(document.getElementById('table'), {sheet:sheetNm,raw:true});
+    // XLSX.writeFile(wb, (fileNm));
+    console.log("zzzzz");
+    exportExcel();
+});
 
 
+function exportExcel(){
+    let wb = XLSX.utils.book_new();
+
+    // step 2. 시트 만들기 
+    let ws = excelHandler.getWorksheet();
+    
+    // step 3. workbook에 새로만든 워크시트에 이름을 주고 붙인다.  
+    XLSX.utils.book_append_sheet(wb, ws, excelHandler.getSheetName());
+
+    // step 4. 엑셀 파일 만들기 
+    let wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+
+    // step 5. 엑셀 파일 내보내기 
+    saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), excelHandler.getExcelFileName());
+
+}
+
+let excelHandler = {
+    getExcelFileName : function(){
+        console.log("1")
+        return 'workrecord.xlsx';
+    },
+    getSheetName : function(){
+        console.log("2")
+        return 'sheet1';
+    },
+    getExcelData : function(){
+        console.log("3")
+        return document.getElementById('table');
+    },
+    getWorksheet : function(){
+        console.log("4")
+        return XLSX.utils.table_to_sheet(this.getExcelData());
+    }
+}
+
+function s2ab(s) { 
+    console.log("s2ab");
+    var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+    var view = new Uint8Array(buf);  //create uint8array as viewer
+    for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+    return buf;    
+}
 
