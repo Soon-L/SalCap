@@ -191,14 +191,14 @@ body {
 }
 
 /*결과 저장 테이블*/
-.table{
+.table, .table *{
     border: 2px solid #333;
     width: -webkit-fill-available;
     border-collapse: collapse;
     text-align: center;
 }
 
-.table.head{
+.head{
     background-color: #b8b8b8; /*연한 회색*/
 }
 
@@ -226,7 +226,9 @@ body {
     justify-content: right;
     margin-bottom: 10px;
 }
-
+.tabLabel.active{
+    border: 5px solid #28a745;
+}
     </style>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -275,10 +277,12 @@ body {
 
         <!-- 탭 컨테이너 -->
         <section class="tab-container glass-effect">
-            <div id="tabButtons"></div>
+            <button id="tabAddButton" class="btn primary"> + 데이터 저장 </button>
+            <div id="tabButtons">
+                <button class="btn tabLabel hidden"></button>
+            </div>
             <div id="tabContents" class="tabContents"></div>
             <div id="count" class="hidden"></div>
-            <button id="tabAddButton" class="btn primary"> + 탭 추가 </button>
         </section>
 
         <!--데이터 테이블-->
@@ -287,19 +291,24 @@ body {
                 <button id="toExcel" class="btn primary">엑셀 내보내기</button>
                 <button id="toPdf" class="btn primary">pdf변환</button>
             </div>
-            <table id="table" class="table">
-                <tr class="table head">
-                    <td class="table head data">No</td>
-                    <td class="table head data">직원 이름</td>
-                    <td class="table head data">근무일자</td>
-                    <td class="table head data">시작 시간</td>
-                    <td class="table head data">종료 시간</td>
-                    <td class="table head data">총 근무시간(분)</td>
-                    <td class="table head data">분당 급여(원)</td>
-                    <td class="table head data">원천징수여부</td>
-                    <td class="table head data">총 급여(원)</td>
-                </tr>
-            </table>
+            <div class="dataTable">
+                <table class="table">
+                    <thead>
+                        <tr class="head">
+                            <td class="head data">No</td>
+                            <td class="head data">직원 이름</td>
+                            <td class="head data">근무일자</td>
+                            <td class="head data">시작 시간</td>
+                            <td class="head data">종료 시간</td>
+                            <td class="head data">총 근무시간(분)</td>
+                            <td class="head data">분당 급여(원)</td>
+                            <td class="head data">원천징수여부</td>
+                            <td class="head data">총 급여(원)</td>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
            </section>        
     </main>
 
@@ -309,5 +318,7 @@ body {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
-</body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script> <!-- pdf 생성위한 화면 캡쳐-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> <!-- pdf 생성-->
+    
 </html>

@@ -114,6 +114,10 @@ document.getElementById('calculateButton').addEventListener('click', function ()
         result.style.display = 'block'; // 결과 보여줌
 });
 
+const tableClone = document.querySelector('.table').cloneNode(true);
+let tabNumber = 0;
+
+
 
 
 // 2024.12.21 테이블 정보 추가 - 이순
@@ -130,7 +134,6 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
     let totalMinutesWorked = 0;
     
 
-
         // 예외처리(이름, 분당급여)
         if (!employeeName.value) {
             alert("직원 이름을 입력하세요.");
@@ -141,13 +144,30 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
             alert("유효한 분당 급여를 입력하세요.");
             return;
         }
-    
+        // 기존 테이블 숨기기
+        const alltable = document.querySelectorAll('.table');
+        alltable.forEach((tab) =>{
+            tab.classList.add('hidden');
+        })
+        //새 테이블 생성
+        tabNumber++;
+        let nowTab = 'tab' + tabNumber;
+        document.querySelectorAll('.table').forEach((table)=>{
+            table.classList.remove('active');
+        })
+        const newTable = tableClone.cloneNode(true);
+        newTable.classList.add(nowTab);
+        newTable.classList.add('active');
+        document.querySelector(".dataTable").appendChild(newTable);
+
 
         // 계산한 근로자 탭 라벨 생성
+        document.querySelectorAll('.tabLabel').forEach((label)=>{
+            label.classList.remove('active');
+        });
         const tabLabel = document.createElement('button');
-        tabLabel.className = 'btn tabLabel';
+        tabLabel.className = 'btn tabLabel active '+nowTab;
         tabLabel.textContent = `${employeeName.value}`;
-
         // 부모자식 설정
         tabButtons.appendChild(tabLabel);
 
@@ -190,29 +210,20 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
             
             
             // 테이블에 데이터 저장 이벤트
-            const table = document.getElementById('table');
+            const table = document.querySelector('.dataTable').querySelector('.'+nowTab);
             const tableRow = document.createElement('tr');
             const num = document.createElement('td'); // 카운트
-            num.className = 'table'; // 테이블 border 위해서 필요
             const name = document.createElement('td'); // 근로자명
-            name.className = 'table';
             const date = document.createElement('td'); // 근무일자
-            date.className = 'table';
             const startTime = document.createElement('td'); // 시작시간
-            startTime.className = 'table';
             const endTime = document.createElement('td'); // 종료시간
-            endTime.className = 'table';
             const totalTime = document.createElement('td'); // 총 근무시간(분)
-            totalTime.className = 'table';
             const minuteSalary = document.createElement('td'); // 분당급여
-            minuteSalary.className = 'table';
             const tax = document.createElement('td'); // 원천징수
-            tax.className = 'table';
             const allSalary = document.createElement('td'); // 총 급여
-            allSalary.className = 'table';
     
             // 부모자식 설정
-            table.appendChild(tableRow);
+            table.querySelector('tbody').appendChild(tableRow);
             tableRow.appendChild(num)
             tableRow.appendChild(name);
             tableRow.appendChild(date);
@@ -255,39 +266,56 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
         while(parent.firstChild)  {
             parent.removeChild(parent.firstChild);
         }
-
-
-
 });
 
 
 // 2024.12.22 탭 클릭시 정보 띄우기(반복 불가) - 이순
 // 탭 클릭시 정보 불러오기 이벤트
-let tabContents = document.getElementById('tabButtons');
-tabContents.addEventListener('click', function(){
-    let table = document.getElementById('table'); // 데이터 저장 테이블
-    let rowList = table.rows;
-    let tabLabelLength = tabContents.childElementCount;
-    let tabLabelList = tabContents.children;
 
-    for(let i = 1; i<rowList.length; i++){
-        for(let j = 0; j<tabLabelLength; j++){
-        let row = rowList[i];
-        let cell = row.cells[1];
-        let tabName = tabLabelList[j]
+// let tabContents = document.getElementById('tabButtons');
+// tabContents.addEventListener('click', function(){
+//     let table = document.getElementById('table'); // 데이터 저장 테이블
+//     let rowList = table.rows;
+//     let tabLabelLength = tabContents.childElementCount;
+//     let tabLabelList = tabContents.children;
 
-        // 2024.12.22 수정중(한번만 클릭 가능) - 이순
-            if(cell.textContent == tabName.textContent){
-                let name = row.cells[1].textContent;
-                let totalMinutesWorked = row.cells[5].textContent;
-                let totalSalary = row.cells[8].textContent;
-                document.getElementById('tabContents').textContent = `${name}님의 총 근무 시간은 ${totalMinutesWorked}분이며, 총 급여는 ${totalSalary}원입니다.`;
-                tabContents.style.display = 'block'; // 결과 보여줌 
-            }
-        }
-    }
-})
+//     for(let i = 1; i<rowList.length; i++){
+//         for(let j = 0; j<tabLabelLength; j++){
+//         let row = rowList[i];
+//         let cell = row.cells[1];
+//         let tabName = tabLabelList[j]
 
+//         // 2024.12.22 수정중(한번만 클릭 가능) - 이순
+//             if(cell.textContent == tabName.textContent){
+//                 let name = row.cells[1].textContent;
+//                 let totalMinutesWorked = row.cells[5].textContent;
+//                 let totalSalary = row.cells[8].textContent;
+//                 document.getElementById('tabContents').textContent = `${name}님의 총 근무 시간은 ${totalMinutesWorked}분이며, 총 급여는 ${totalSalary}원입니다.`;
+//                 tabContents.style.display = 'block'; // 결과 보여줌 
+//             }
+//         }
+//     }
+// })
+// 2024.12.23 탭 클릭시 테이블 변경 - 승래
+document.getElementById('tabButtons').addEventListener('click', function(){
+    document.querySelectorAll('.tabLabel').forEach((tab, index)=>{
+        tab.addEventListener('click',function(){
+            const alltabs = document.querySelectorAll('.tabLabel');
+            console.log(tab)
+            const tables = document.querySelectorAll('.table');
+            tables.forEach((table)=>{
+                table.classList.add('hidden');
+                table.classList.remove('active');
+            });
+            alltabs.forEach((viewTab)=>{
+                viewTab.classList.remove('active');
+            })
+            alltabs[index].classList.add('active');
+            tables[index].classList.remove('hidden');
+            tables[index].classList.add('active');
+        });
+    });
+});
 
 // 2024.12.22 엑샐 내보내기 기능 - 승래
 document.getElementById('toExcel').addEventListener('click',function(){
@@ -303,16 +331,60 @@ document.getElementById('toExcel').addEventListener('click',function(){
 function exportExcel(){
     let wb = XLSX.utils.book_new();
 
-    // step 2. 시트 만들기 
     let ws = excelHandler.getWorksheet();
+
+    for ( i in ws ) {
+        if ( typeof ( ws[ i ] ) != "object" ) continue;
+        let cell = XLSX.utils.decode_cell( i );
+        // 각 열 너비 설정
+        ws["!cols"]=[{wpx: 30},{wpx: 130},{wpx: 130},{wpx: 130},{wpx: 130},{wpx: 130},{wpx: 130},{wpx: 130},{wpx: 130}];
+        //모든 셀 스타일
+        ws[ i ].s = {
+            font : {
+                name : "arial"
+            } ,
+            alignment : {
+                vertical : "center" ,
+                horizontal : "center" ,
+                wrapText : '1' ,
+            } ,
+            border : {
+                right : {
+                    style : "thin" ,
+                    color : "000000"
+                } ,
+                left : {
+                    style : "thin" ,
+                    color : "000000"
+                } ,
+                top : {
+                    style : "thin" ,
+                    color : "000000"
+                } ,
+                bottom : {
+                    style : "thin" ,
+                    color : "000000"
+                } ,
+            }
+        };
+       ////////헤더부분 스타일
+        if ( cell.r == 0 ) {
+            ws[ i ].s.fill = {
+                patternType : "solid" ,
+                fgColor : {
+                    rgb : "b2b2b2"
+                } ,
+                bgColor : {
+                    rgb : "b2b2b2"
+                }
+            };
+        }
+    }
     
-    // step 3. workbook에 새로만든 워크시트에 이름을 주고 붙인다.  
     XLSX.utils.book_append_sheet(wb, ws, excelHandler.getSheetName());
 
-    // step 4. 엑셀 파일 만들기 
     let wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
 
-    // step 5. 엑셀 파일 내보내기 
     saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), excelHandler.getExcelFileName());
 
 }
@@ -328,7 +400,7 @@ let excelHandler = {
     },
     getExcelData : function(){
         console.log("3")
-        return document.getElementById('table');
+        return document.querySelector('.table.active');
     },
     getWorksheet : function(){
         console.log("4")
@@ -344,3 +416,24 @@ function s2ab(s) {
     return buf;    
 }
 
+
+
+// 2024.12.23 PDF 변환 기능 - 이순
+function downloadPDF() {
+    const element = document.body; // PDF로 변환하고자 하는 HTML 요소를 선택합니다. 예: document.getElementById('your-element-id')
+
+    html2canvas(element).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jspdf.jsPDF();
+        const imgProps= pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save("download.pdf");
+    });
+}
+
+document.getElementById('toPdf').addEventListener('click', function(){
+    downloadPDF();
+})
