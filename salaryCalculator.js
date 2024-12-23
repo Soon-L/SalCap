@@ -344,3 +344,24 @@ function s2ab(s) {
     return buf;    
 }
 
+
+
+// 2024.12.23 PDF 변환 기능 - 이순
+function downloadPDF() {
+    const element = document.body; // PDF로 변환하고자 하는 HTML 요소를 선택합니다. 예: document.getElementById('your-element-id')
+
+    html2canvas(element).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jspdf.jsPDF();
+        const imgProps= pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save("download.pdf");
+    });
+}
+
+document.getElementById('toPdf').addEventListener('click', function(){
+    downloadPDF();
+})
