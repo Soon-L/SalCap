@@ -53,11 +53,16 @@ document.getElementById('addWorkRecordButton').addEventListener('click', functio
     workRecordsContainer.appendChild(recordDiv);
 });
 
+
+
+
+// 계산 버튼 이벤트
 // 계산 버튼 이벤트
 document.getElementById('calculateButton').addEventListener('click', function () {
     const employeeName = document.getElementById('employeeName').value; // 직원 이름
     const wagePerMinute = parseInt(document.getElementById('wagePerMinute').value); // 분당 급여
     const withholdingTaxChecked = document.getElementById('withholdingTax').checked; // 원천징수 체크 여부
+    let calculateFlag = true; //계산 유효성 검사를 위한 boolean 변수
 
     if (!employeeName) {
         alert("직원 이름을 입력하세요.");
@@ -69,6 +74,10 @@ document.getElementById('calculateButton').addEventListener('click', function ()
         return;
     }
 
+    if(document.getElementById('workRecordsContainer').childNodes.length===0){
+        alert("근무기록이 입력되지 않았습니다.");
+        return;
+    }
     let totalMinutesWorked = 0;
 
     // 모든 근무 기록 가져오기
@@ -81,6 +90,7 @@ document.getElementById('calculateButton').addEventListener('click', function ()
 
         if (!dateInput || !startTimeInput || !endTimeInput) {
             alert("모든 날짜와 시간을 입력하세요.");
+            calculateFlag = false;
             return;
         }
 
@@ -93,6 +103,7 @@ document.getElementById('calculateButton').addEventListener('click', function ()
 
         if (minutesWorked <= 0) {
             alert("종료 시간이 시작 시간보다 빨라서는 안 됩니다.");
+            calculateFlag = false;
             return;
         }
 
@@ -109,9 +120,13 @@ document.getElementById('calculateButton').addEventListener('click', function ()
 
     // 2024.12.21 계산시 결과 보여주기 추가 - 이순
     // 결과 출력
-    document.getElementById('result').textContent =
+    if(calculateFlag){
+        document.getElementById('result').textContent =
         `${employeeName}님의 총 근무 시간은 ${totalMinutesWorked}분이며, 총 급여는 ${totalSalary.toLocaleString()}원입니다.`;
         result.style.display = 'block'; // 결과 보여줌
+    }else{
+        return;
+    }
 });
 
 const tableClone = document.querySelector('.table').cloneNode(true);
@@ -124,7 +139,6 @@ let tabNumber = 0;
 // 새로운 탭 생성 이벤트
 document.getElementById('tabAddButton').addEventListener('click', function () {
     const tabButtons = document.getElementById('tabButtons'); // 추가된 탭
-    const tabContents = document.getElementById('tabContents'); // 추가된 탭 클릭시 내용 들어올 곳
     const employeeName = document.getElementById('employeeName'); // 직원 이름
     const wagePerMinute = document.getElementById('wagePerMinute'); // 분당 급여
     const workRecords = document.querySelectorAll('#workRecordsContainer .input-group'); // 근무 정보
@@ -154,6 +168,7 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
         let nowTab = 'tab' + tabNumber;
         document.querySelectorAll('.table').forEach((table)=>{
             table.classList.remove('active');
+            count.textContent = Number(count.textContent)-Number(count.textContent); // 테이블 넘버 리셋셋
         })
         const newTable = tableClone.cloneNode(true);
         newTable.classList.add(nowTab);
@@ -177,6 +192,7 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
             const dateInput = record.querySelector('input[type=date]').value;
             const startTimeInput = record.querySelector('input[type=time]').value;
             const endTimeInput = record.querySelectorAll('input[type=time]')[1].value;
+            let totalMinutesWorked = 0;
 
             // 예외처리(날짜 시간)
             if (!dateInput || !startTimeInput || !endTimeInput) {
@@ -221,7 +237,8 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
             const minuteSalary = document.createElement('td'); // 분당급여
             const tax = document.createElement('td'); // 원천징수
             const allSalary = document.createElement('td'); // 총 급여
-    
+            // const resultData = document.createElement('tr'); // 맨 밑 결과
+
             // 부모자식 설정
             table.querySelector('tbody').appendChild(tableRow);
             tableRow.appendChild(num)
@@ -233,6 +250,7 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
             tableRow.appendChild(minuteSalary);
             tableRow.appendChild(tax);
             tableRow.appendChild(allSalary);
+            // table.appendChild(resultData);
     
     
             // 2024.12.21 오류 수정 - 이순
@@ -247,13 +265,40 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
             minuteSalary.textContent = wagePerMinute.value; // 분당급여
             tax.textContent = 'X'; // 원천징수 안했을경우
             allSalary.textContent = totalMinutesWorked * wagePerMinute.value;
+            //resultData.textContent += Number(allSalary.textContent);
             // 원천징수 했을경우
             if(withholdingTaxChecked.checked === true){
                 tax.textContent = 'O';
                 allSalary.textContent = totalMinutesWorked * wagePerMinute.value *(1 - 0.033);
+                //resultData.textContent += Number(allSalary.textContent);
             } 
             
         });
+
+
+
+        ///////// 2024.12.25 결과 데이터 행 - 이순 /////////////////////////
+        const table = document.querySelector('.dataTable');
+        const resultDataRow = document.createElement('tr'); // 맨 밑 결과 행
+        const resultData = document.createElement('td'); // 맨 밑 결과 셀
+        resultData.className = 'resultData ' + 'tab'+tabNumber;
+
+        // 부모자식 설정
+        table.appendChild(resultDataRow);
+        resultDataRow.appendChild(resultData);
+
+        resultData.textContent = result.textContent; // 결과값 넣기
+
+        // 기존 결과 행 숨기기
+        const allResultData = document.querySelectorAll('.resultData');
+        allResultData.forEach((tab) =>{
+            tab.classList.add('hidden');
+        })
+
+        // 현재 결과 행 보이기
+        resultData.classList.remove('hidden');
+        resultData.classList.add('active');
+
 
         // 기존 탭 정보 리셋
         employeeName.value = ''; // 직원 이름
@@ -267,6 +312,10 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
             parent.removeChild(parent.firstChild);
         }
 });
+
+
+
+
 
 
 // 2024.12.22 탭 클릭시 정보 띄우기(반복 불가) - 이순
@@ -296,6 +345,10 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
 //         }
 //     }
 // })
+
+
+
+
 // 2024.12.23 탭 클릭시 테이블 변경 - 승래
 document.getElementById('tabButtons').addEventListener('click', function(){
     document.querySelectorAll('.tabLabel').forEach((tab, index)=>{
@@ -317,13 +370,11 @@ document.getElementById('tabButtons').addEventListener('click', function(){
     });
 });
 
+
+
+
 // 2024.12.22 엑샐 내보내기 기능 - 승래
 document.getElementById('toExcel').addEventListener('click',function(){
-    // let fileNm = '근무기록' + '.xlsx';
-    // let sheetNm = 'sheet1';
-    // let wb = XLSX.utils.table_to_book(document.getElementById('table'), {sheet:sheetNm,raw:true});
-    // XLSX.writeFile(wb, (fileNm));
-    console.log("zzzzz");
     exportExcel();
 });
 
@@ -391,19 +442,15 @@ function exportExcel(){
 
 let excelHandler = {
     getExcelFileName : function(){
-        console.log("1")
         return 'workrecord.xlsx';
     },
     getSheetName : function(){
-        console.log("2")
         return 'sheet1';
     },
     getExcelData : function(){
-        console.log("3")
         return document.querySelector('.table.active');
     },
     getWorksheet : function(){
-        console.log("4")
         return XLSX.utils.table_to_sheet(this.getExcelData());
     }
 }
@@ -418,19 +465,41 @@ function s2ab(s) {
 
 
 
-// 2024.12.23 PDF 변환 기능 - 이순
+// 2024.12.23 PDF 변환 기능(페이지 잘림 에러) - 이순
 function downloadPDF() {
-    const element = document.body; // PDF로 변환하고자 하는 HTML 요소를 선택합니다. 예: document.getElementById('your-element-id')
+    let element = document.getElementById('saveTable'); // PDF로 변환하고자 하는 HTML 요소를 선택합니다. 예: document.getElementById('your-element-id')
 
     html2canvas(element).then((canvas) => {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jspdf.jsPDF();
-        const imgProps= pdf.getImageProperties(imgData);
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        let imgData = canvas.toDataURL('image/png');
+        let pdf = new jspdf.jsPDF();
 
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        let imgWidth = 190; // 이미지 가로 길이(mm) / A4 기준 210mm
+        let pageHeight = imgWidth * 1.414;  // 출력 페이지 세로 길이 계산 A4 기준
+        let imgHeight = canvas.height * imgWidth / canvas.width;
+        let heightLeft = imgHeight;
+        let margin = 10; // 출력 페이지 여백설정
+        
+        //let position = (0, 10);
+        let position = (0, 10);
+
+
+        // 첫 페이지 출력
+      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      // 한 페이지 이상일 경우 루프 돌면서 출력
+      while (heightLeft >= 0) {			// 35
+        position = heightLeft - imgHeight;
+        //position = position - 20 ;		// -25
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+
         pdf.save("download.pdf");
+
+        
     });
 }
 
