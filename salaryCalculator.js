@@ -58,6 +58,7 @@ document.getElementById('calculateButton').addEventListener('click', function ()
     const employeeName = document.getElementById('employeeName').value; // 직원 이름
     const wagePerMinute = parseInt(document.getElementById('wagePerMinute').value); // 분당 급여
     const withholdingTaxChecked = document.getElementById('withholdingTax').checked; // 원천징수 체크 여부
+    let calculateFlag = true; //계산 유효성 검사를 위한 boolean 변수
 
     if (!employeeName) {
         alert("직원 이름을 입력하세요.");
@@ -69,6 +70,10 @@ document.getElementById('calculateButton').addEventListener('click', function ()
         return;
     }
 
+    if(document.getElementById('workRecordsContainer').childNodes.length===0){
+        alert("근무기록이 입력되지 않았습니다.");
+        return;
+    }
     let totalMinutesWorked = 0;
 
     // 모든 근무 기록 가져오기
@@ -81,6 +86,7 @@ document.getElementById('calculateButton').addEventListener('click', function ()
 
         if (!dateInput || !startTimeInput || !endTimeInput) {
             alert("모든 날짜와 시간을 입력하세요.");
+            calculateFlag = false;
             return;
         }
 
@@ -93,6 +99,7 @@ document.getElementById('calculateButton').addEventListener('click', function ()
 
         if (minutesWorked <= 0) {
             alert("종료 시간이 시작 시간보다 빨라서는 안 됩니다.");
+            calculateFlag = false;
             return;
         }
 
@@ -109,19 +116,22 @@ document.getElementById('calculateButton').addEventListener('click', function ()
 
     // 2024.12.21 계산시 결과 보여주기 추가 - 이순
     // 결과 출력
-    document.getElementById('result').textContent =
+    if(calculateFlag){
+        document.getElementById('result').textContent =
         `${employeeName}님의 총 근무 시간은 ${totalMinutesWorked}분이며, 총 급여는 ${totalSalary.toLocaleString()}원입니다.`;
         result.style.display = 'block'; // 결과 보여줌
+    }else{
+        return;
+    }
 });
-
-const tableClone = document.querySelector('.table').cloneNode(true);
-let tabNumber = 0;
-
 
 
 
 // 2024.12.21 테이블 정보 추가 - 이순
 // 새로운 탭 생성 이벤트
+const tableClone = document.querySelector('.table').cloneNode(true); // 초기 테이블 클론
+let tabNumber = 0; //현재 테이블 갯수
+
 document.getElementById('tabAddButton').addEventListener('click', function () {
     const tabButtons = document.getElementById('tabButtons'); // 추가된 탭
     const tabContents = document.getElementById('tabContents'); // 추가된 탭 클릭시 내용 들어올 곳
@@ -134,16 +144,22 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
     let totalMinutesWorked = 0;
     
 
-        // 예외처리(이름, 분당급여)
-        if (!employeeName.value) {
-            alert("직원 이름을 입력하세요.");
+        // // 예외처리(이름, 분당급여)
+        // if (!employeeName.value) {
+        //     alert("직원 이름을 입력하세요.");
+        //     return;
+        // }
+
+        // if (isNaN(wagePerMinute.value) || wagePerMinute.value <= 0) {
+        //     alert("유효한 분당 급여를 입력하세요.");
+        //     return;
+        // }
+
+        if(document.getElementById('result').textContent===""){
+            alert("계산이 완료되어야 저장 할 수 있습니다.");
             return;
         }
 
-        if (isNaN(wagePerMinute.value) || wagePerMinute.value <= 0) {
-            alert("유효한 분당 급여를 입력하세요.");
-            return;
-        }
         // 기존 테이블 숨기기
         const alltable = document.querySelectorAll('.table');
         alltable.forEach((tab) =>{
@@ -319,11 +335,6 @@ document.getElementById('tabButtons').addEventListener('click', function(){
 
 // 2024.12.22 엑샐 내보내기 기능 - 승래
 document.getElementById('toExcel').addEventListener('click',function(){
-    // let fileNm = '근무기록' + '.xlsx';
-    // let sheetNm = 'sheet1';
-    // let wb = XLSX.utils.table_to_book(document.getElementById('table'), {sheet:sheetNm,raw:true});
-    // XLSX.writeFile(wb, (fileNm));
-    console.log("zzzzz");
     exportExcel();
 });
 
@@ -391,19 +402,15 @@ function exportExcel(){
 
 let excelHandler = {
     getExcelFileName : function(){
-        console.log("1")
         return 'workrecord.xlsx';
     },
     getSheetName : function(){
-        console.log("2")
         return 'sheet1';
     },
     getExcelData : function(){
-        console.log("3")
         return document.querySelector('.table.active');
     },
     getWorksheet : function(){
-        console.log("4")
         return XLSX.utils.table_to_sheet(this.getExcelData());
     }
 }
@@ -437,3 +444,22 @@ function downloadPDF() {
 document.getElementById('toPdf').addEventListener('click', function(){
     downloadPDF();
 })
+
+// const shareButton = document.querySelector('#shareButton');
+
+// shareButton.addEventListener('click', async () => {
+//   if (navigator.share) {
+//     try {
+//       await navigator.share({
+//         title: '공유할 콘텐츠 제목',
+//         text: '공유할 텍스트 내용',
+//         url: 'https://example.com'
+//       });
+//       console.log('콘텐츠가 성공적으로 공유되었습니다.');
+//     } catch(err) {
+//       console.error('공유 중 오류가 발생했습니다:', err);
+//     }
+//   } else {
+//     alert('죄송합니다. 이 브라우저에서는 Web Share API를 지원하지 않습니다.');
+//   }
+// });
