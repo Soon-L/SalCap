@@ -202,19 +202,26 @@ body {
     background-color: #b8b8b8; /*연한 회색*/
 }
 
+/*2024.12.24 수정 이순*/
 /*결과 저장 카드 위쪽 margin*/
 .save {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
     border-radius: 12px;
     box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2);
-    margin-top: 20px;
+    margin-top: 5px;
     padding: 20px;
 }
 
+/*2024.12.24 이순*/
 /*탭 추가시 nameLabel*/
-.tabContents{
-    text-align: start;
+#tabAddButton{
     margin-bottom: 20px;
+}
+
+/*2024.12.24 이순*/
+/*근무 추가 버튼 마진*/
+#addWorkRecordButton{
+    margin-top: 10px;
 }
 
 /*테이블 num 카운트*/
@@ -229,6 +236,17 @@ body {
 .tabLabel.active{
     border: 5px solid #28a745;
 }
+/* .head.data{
+    height: 1500px;
+} */
+
+.resultData{
+    border: 2px solid #333;
+    width: 100vw;
+    border-collapse: collapse;
+    text-align: center;
+}
+
     </style>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -291,7 +309,7 @@ body {
                 <button id="toExcel" class="btn primary">엑셀 내보내기</button>
                 <button id="toPdf" class="btn primary">pdf변환</button>
             </div>
-            <div class="dataTable">
+            <div id="saveTable" class="dataTable">
                 <table class="table">
                     <thead>
                         <tr class="head">
@@ -320,5 +338,6 @@ body {
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script> <!-- pdf 생성위한 화면 캡쳐-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> <!-- pdf 생성-->
-    
+    <script src="https://unpkg.com/jspdf-autotable"></script> <!--동적으로 표 생성-->
+
 </html>
