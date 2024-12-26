@@ -57,7 +57,6 @@ document.getElementById('addWorkRecordButton').addEventListener('click', functio
 
 
 // 계산 버튼 이벤트
-// 계산 버튼 이벤트
 document.getElementById('calculateButton').addEventListener('click', function () {
     const employeeName = document.getElementById('employeeName').value; // 직원 이름
     const wagePerMinute = parseInt(document.getElementById('wagePerMinute').value); // 분당 급여
@@ -129,14 +128,15 @@ document.getElementById('calculateButton').addEventListener('click', function ()
     }
 });
 
-const tableClone = document.querySelector('.table').cloneNode(true);
-let tabNumber = 0;
 
 
 
 
 // 2024.12.21 테이블 정보 추가 - 이순
 // 새로운 탭 생성 이벤트
+const tableClone = document.querySelector('.tableTab').cloneNode(true);
+let tabNumber = 0;
+
 document.getElementById('tabAddButton').addEventListener('click', function () {
     const tabButtons = document.getElementById('tabButtons'); // 추가된 탭
     const employeeName = document.getElementById('employeeName'); // 직원 이름
@@ -148,25 +148,21 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
     let totalMinutesWorked = 0;
     
 
-        // 예외처리(이름, 분당급여)
-        if (!employeeName.value) {
-            alert("직원 이름을 입력하세요.");
+        // 2024.12.26 계산 안하면 저장 안됨 - 이순
+        if(!result.textContent){
+            alert('계산해주세요.')
             return;
-        }
+        }   
 
-        if (isNaN(wagePerMinute.value) || wagePerMinute.value <= 0) {
-            alert("유효한 분당 급여를 입력하세요.");
-            return;
-        }
         // 기존 테이블 숨기기
-        const alltable = document.querySelectorAll('.table');
+        const alltable = document.querySelectorAll('.tableTab');
         alltable.forEach((tab) =>{
             tab.classList.add('hidden');
         })
         //새 테이블 생성
         tabNumber++;
         let nowTab = 'tab' + tabNumber;
-        document.querySelectorAll('.table').forEach((table)=>{
+        document.querySelectorAll('.tableTab').forEach((table)=>{
             table.classList.remove('active');
             count.textContent = Number(count.textContent)-Number(count.textContent); // 테이블 넘버 리셋셋
         })
@@ -278,33 +274,18 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
 
 
         ///////// 2024.12.25 결과 데이터 행 - 이순 /////////////////////////
-        const table = document.querySelector('.dataTable');
-        const resultDataRow = document.createElement('tr'); // 맨 밑 결과 행
-        const resultData = document.createElement('td'); // 맨 밑 결과 셀
-        resultData.className = 'resultData ' + 'tab'+tabNumber;
+        const resultData = document.createElement('div'); // 맨 밑 결과 셀
 
         // 부모자식 설정
-        table.appendChild(resultDataRow);
-        resultDataRow.appendChild(resultData);
-
+        newTable.appendChild(resultData);
         resultData.textContent = result.textContent; // 결과값 넣기
-
-        // 기존 결과 행 숨기기
-        const allResultData = document.querySelectorAll('.resultData');
-        allResultData.forEach((tab) =>{
-            tab.classList.add('hidden');
-        })
-
-        // 현재 결과 행 보이기
-        resultData.classList.remove('hidden');
-        resultData.classList.add('active');
 
 
         // 기존 탭 정보 리셋
         employeeName.value = ''; // 직원 이름
         wagePerMinute.value = ''; // 분당 급여
         withholdingTaxChecked.checked = false; // 원천징수
-        result.style.display = 'none'; // 결과 안보이게 처리
+        result.textContent = '';
        
         //////근무기록 input창 삭제(초기화)
         const parent = document.getElementById('workRecordsContainer');
@@ -354,8 +335,7 @@ document.getElementById('tabButtons').addEventListener('click', function(){
     document.querySelectorAll('.tabLabel').forEach((tab, index)=>{
         tab.addEventListener('click',function(){
             const alltabs = document.querySelectorAll('.tabLabel');
-            console.log(tab)
-            const tables = document.querySelectorAll('.table');
+            const tables = document.querySelectorAll('.tableTab');
             tables.forEach((table)=>{
                 table.classList.add('hidden');
                 table.classList.remove('active');
@@ -456,7 +436,6 @@ let excelHandler = {
 }
 
 function s2ab(s) { 
-    console.log("s2ab");
     var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
     var view = new Uint8Array(buf);  //create uint8array as viewer
     for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
