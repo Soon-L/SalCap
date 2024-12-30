@@ -355,7 +355,12 @@ document.getElementById('tabButtons').addEventListener('click', function(){
 
 // 2024.12.22 엑샐 내보내기 기능 - 승래
 document.getElementById('toExcel').addEventListener('click',function(){
-    exportExcel();
+    if(document.querySelectorAll('.tableTab').length > 1){
+        saveAs(exportExcel(), 'workrecord.xlsx');
+    }
+    else{
+        alert("데이터를 저장해주세요");
+    }
 });
 
 
@@ -416,7 +421,7 @@ function exportExcel(){
 
     let wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
 
-    saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), excelHandler.getExcelFileName());
+    return new Blob([s2ab(wbout)],{type:"application/octet-stream"});
 
 }
 
@@ -428,7 +433,7 @@ let excelHandler = {
         return 'sheet1';
     },
     getExcelData : function(){
-        return document.querySelector('.table.active');
+        return document.querySelector('.tableTab.active > table');
     },
     getWorksheet : function(){
         return XLSX.utils.table_to_sheet(this.getExcelData());
@@ -463,8 +468,8 @@ function downloadPDF() {
 
 
         // 첫 페이지 출력
-      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+      pd.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;f
 
       // 한 페이지 이상일 경우 루프 돌면서 출력
       while (heightLeft >= 0) {			// 35
@@ -485,3 +490,48 @@ function downloadPDF() {
 document.getElementById('toPdf').addEventListener('click', function(){
     downloadPDF();
 })
+
+
+/////////공유하기/////////////
+
+document.getElementById('shareButton').addEventListener('click', async () => {
+
+    if(document.querySelectorAll('.tableTab').length > 1){
+        kakaoAPI();
+    }
+    else{
+        alert("데이터를 저장해주세요");
+    }
+});
+
+function kakaoAPI() {
+    let userName = document.querySelector('.tabLabel.active').textContent;
+    let workText = document.querySelector('.tableTab.active > div').textContent
+    console.log(workText)
+	if (!Kakao.isInitialized()) {
+    Kakao.init('e7dcd72b2b02b7e2846d9731a41a6554'); // 초기화는 단 한 번만 실행
+	}
+	
+    Kakao.Link.sendDefault({
+        objectType: 'feed',
+        content: {
+            title: '근무시간 및 급여내역 입니다',
+            description: workText,
+            imageUrl: 'https://example.com/image.png',
+            link: {
+                webUrl: 'http://localhost:8080',
+                mobileWebUrl: 'http://localhost:8080',
+            },
+        },
+        buttons: [
+            {
+                title: '링크 열기',
+                link: {
+                    webUrl: 'http://localhost:8080',
+                    mobileWebUrl: 'http://localhost:8080',
+                },
+            },
+        ],
+    });
+}
+
