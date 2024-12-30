@@ -275,6 +275,7 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
 
         ///////// 2024.12.25 결과 데이터 행 - 이순 /////////////////////////
         const resultData = document.createElement('div'); // 맨 밑 결과 셀
+        resultData.className = 'resultData';
 
         // 부모자식 설정
         newTable.appendChild(resultData);
@@ -445,43 +446,47 @@ function s2ab(s) {
 
 
 // 2024.12.23 PDF 변환 기능(페이지 잘림 에러) - 이순
+// 2024.12.27 페이지 에러 (임시)포기선언 - 이순
 function downloadPDF() {
     let element = document.getElementById('saveTable'); // PDF로 변환하고자 하는 HTML 요소를 선택합니다. 예: document.getElementById('your-element-id')
 
     html2canvas(element).then((canvas) => {
         let imgData = canvas.toDataURL('image/png');
-        let pdf = new jspdf.jsPDF();
 
         let imgWidth = 190; // 이미지 가로 길이(mm) / A4 기준 210mm
-        let pageHeight = imgWidth * 1.414;  // 출력 페이지 세로 길이 계산 A4 기준
+        let pageHeight = imgWidth * 1.414; //출력 페이지 세로 길이 계산 A4 기준
         let imgHeight = canvas.height * imgWidth / canvas.width;
-        let heightLeft = imgHeight;
+        let heightLeft = imgHeight; // 남은 이미지 높이
         let margin = 10; // 출력 페이지 여백설정
-        
-        //let position = (0, 10);
-        let position = (0, 10);
+        var doc = new jspdf.jsPDF('p', 'mm','a4');
+        let position = (10, 10); // 2페이지부터 마진이 안 먹어서 임시방편으로 설정정
 
 
         // 첫 페이지 출력
-      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+      doc.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
 
       // 한 페이지 이상일 경우 루프 돌면서 출력
-      while (heightLeft >= 0) {			// 35
-        position = heightLeft - imgHeight;
-        //position = position - 20 ;		// -25
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+      while (heightLeft >= 20) {			// 35
+        position = heightLeft - imgHeight
+        doc.addPage();
+        doc.addImage(imgData, 'PNG', margint, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
       }
 
 
-        pdf.save("download.pdf");
+        doc.save("download.pdf");
 
         
     });
 }
 
+// 2024.12.27 데이터 미저장시 예외처리 - 이순
 document.getElementById('toPdf').addEventListener('click', function(){
+    const resultData = document.querySelector('.resultData');
+    if(!resultData){
+        alert('데이터를 저장해주세요.');
+        return;
+    }
     downloadPDF();
 })
