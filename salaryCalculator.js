@@ -56,27 +56,33 @@ document.getElementById('addWorkRecordButton').addEventListener('click', functio
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // 계산 버튼 이벤트
 document.getElementById('calculateButton').addEventListener('click', function () {
     const employeeName = document.getElementById('employeeName').value; // 직원 이름
     const wagePerMinute = parseInt(document.getElementById('wagePerMinute').value); // 분당 급여
     const withholdingTaxChecked = document.getElementById('withholdingTax').checked; // 원천징수 체크 여부
+    const workRecord = document.getElementById('workRecordsContainer').childNodes.length; // 근무기록 여부 
     let calculateFlag = true; //계산 유효성 검사를 위한 boolean 변수
 
-    if (!employeeName) {
-        alert("직원 이름을 입력하세요.");
-        return;
-    }
+    // 입력값 예외처리
+    exception(employeeName, wagePerMinute, workRecord);
+    
 
-    if (isNaN(wagePerMinute) || wagePerMinute <= 0) {
-        alert("유효한 분당 급여를 입력하세요.");
-        return;
-    }
 
-    if(document.getElementById('workRecordsContainer').childNodes.length===0){
-        alert("근무기록이 입력되지 않았습니다.");
-        return;
-    }
     let totalMinutesWorked = 0;
 
     // 모든 근무 기록 가져오기
@@ -87,24 +93,12 @@ document.getElementById('calculateButton').addEventListener('click', function ()
         const startTimeInput = record.querySelector('input[type=time]').value;
         const endTimeInput = record.querySelectorAll('input[type=time]')[1].value;
 
-        if (!dateInput || !startTimeInput || !endTimeInput) {
-            alert("모든 날짜와 시간을 입력하세요.");
-            calculateFlag = false;
-            return;
-        }
+        // 근무기록 예외처리
+        inputException(dateInput, startTimeInput, endTimeInput);
 
-        // 시작 시간과 종료 시간을 Date 객체로 변환
-        const startDateTime = new Date(`${dateInput}T${startTimeInput}`);
-        const endDateTime = new Date(`${dateInput}T${endTimeInput}`);
+        // 근무시간 계산
+        minutesWorked = calculateDate(dateInput, startTimeInput, endTimeInput);
 
-        // 시간 차이를 분 단위로 계산
-        const minutesWorked = (endDateTime - startDateTime) / (1000 * 60); // 밀리초 -> 분 변환
-
-        if (minutesWorked <= 0) {
-            alert("종료 시간이 시작 시간보다 빨라서는 안 됩니다.");
-            calculateFlag = false;
-            return;
-        }
 
         totalMinutesWorked += minutesWorked; // 총 근무 시간(분) 계산
     });
@@ -132,6 +126,13 @@ document.getElementById('calculateButton').addEventListener('click', function ()
 
 
 
+// 모둘화 성공
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 모듈화 중
+
+
+
+
 // 2024.12.21 테이블 정보 추가 - 이순
 // 새로운 탭 생성 이벤트
 const tableClone = document.querySelector('.tableTab').cloneNode(true);
@@ -154,60 +155,60 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
             return;
         }   
 
-        // 기존 테이블 숨기기
         const alltable = document.querySelectorAll('.tableTab');
-        alltable.forEach((tab) =>{
-            tab.classList.add('hidden');
-        })
+        // 기존 테이블 숨기기
+        function hiddenTable(alltable){
+            alltable.forEach((tab) =>{
+                tab.classList.add('hidden');
+            })
+        }
+
+        hiddenTable(alltable);
+
         //새 테이블 생성
         tabNumber++;
         let nowTab = 'tab' + tabNumber;
+        // 테이블 넘버 리셋
         document.querySelectorAll('.tableTab').forEach((table)=>{
             table.classList.remove('active');
-            count.textContent = Number(count.textContent)-Number(count.textContent); // 테이블 넘버 리셋셋
+            count.textContent = Number(count.textContent)-Number(count.textContent);
         })
-        const newTable = tableClone.cloneNode(true);
+        const newTable = tableClone.cloneNode(true); // 테이블 카피
         newTable.classList.add(nowTab);
         newTable.classList.add('active');
         document.querySelector(".dataTable").appendChild(newTable);
+        
+
 
 
         // 계산한 근로자 탭 라벨 생성
-        document.querySelectorAll('.tabLabel').forEach((label)=>{
-            label.classList.remove('active');
-        });
-        const tabLabel = document.createElement('button');
-        tabLabel.className = 'btn tabLabel active '+nowTab;
-        tabLabel.textContent = `${employeeName.value}`;
-        // 부모자식 설정
-        tabButtons.appendChild(tabLabel);
+        function tabLaels(){
+            document.querySelectorAll('.tabLabel').forEach((label)=>{
+                label.classList.remove('active');
+            });
+            const tabLabel = document.createElement('button');
+            tabLabel.className = 'btn tabLabel active '+nowTab;
+            tabLabel.textContent = `${employeeName.value}`;
+            // 부모자식 설정
+            tabButtons.appendChild(tabLabel);
+        }
+
+        tabLaels();
 
 
-        // 근무 정보 추출
-        workRecords.forEach(record => {
+         // 근무 정보 추출
+         workRecords.forEach(record => {
             const dateInput = record.querySelector('input[type=date]').value;
             const startTimeInput = record.querySelector('input[type=time]').value;
             const endTimeInput = record.querySelectorAll('input[type=time]')[1].value;
             let totalMinutesWorked = 0;
 
             // 예외처리(날짜 시간)
-            if (!dateInput || !startTimeInput || !endTimeInput) {
-                alert("모든 날짜와 시간을 입력하세요.");
-                return;
-            }
+            // 근무기록 예외처리
+            inputException(dateInput, startTimeInput, endTimeInput);
     
-            // 시작 시간과 종료 시간을 Date 객체로 변환
-            const startDateTime = new Date(`${dateInput}T${startTimeInput}`);
-            const endDateTime = new Date(`${dateInput}T${endTimeInput}`);
-    
-            // 시간 차이를 분 단위로 계산
-            const minutesWorked = (endDateTime - startDateTime) / (1000 * 60); // 밀리초 -> 분 변환
-
-            // 예외처리(종료시간)
-            if (minutesWorked <= 0) {
-                alert("종료 시간이 시작 시간보다 빨라서는 안 됩니다.");
-                return;
-            }
+            // 근무시간 계산
+            minutesWorked = calculateDate(dateInput, startTimeInput, endTimeInput);
 
             // 총 근무 시간(분) 계산
             totalMinutesWorked += minutesWorked; 
@@ -233,7 +234,6 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
             const minuteSalary = document.createElement('td'); // 분당급여
             const tax = document.createElement('td'); // 원천징수
             const allSalary = document.createElement('td'); // 총 급여
-            // const resultData = document.createElement('tr'); // 맨 밑 결과
 
             // 부모자식 설정
             table.querySelector('tbody').appendChild(tableRow);
@@ -246,13 +246,14 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
             tableRow.appendChild(minuteSalary);
             tableRow.appendChild(tax);
             tableRow.appendChild(allSalary);
-            // table.appendChild(resultData);
+
+
     
     
             // 2024.12.21 오류 수정 - 이순
             //데이터 넣기
             count.textContent = Number(count.textContent) + 1;
-            num.textContent = count.textContent; //1씩 증가 안됨
+            num.textContent = count.textContent; //1씩 증가
             name.textContent = employeeName.value; // 이름
             date.textContent = dateInput; // 근무일자
             startTime.textContent = startTimeInput; // 시작시간
@@ -261,12 +262,10 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
             minuteSalary.textContent = wagePerMinute.value; // 분당급여
             tax.textContent = 'X'; // 원천징수 안했을경우
             allSalary.textContent = totalMinutesWorked * wagePerMinute.value;
-            //resultData.textContent += Number(allSalary.textContent);
             // 원천징수 했을경우
             if(withholdingTaxChecked.checked === true){
                 tax.textContent = 'O';
                 allSalary.textContent = totalMinutesWorked * wagePerMinute.value *(1 - 0.033);
-                //resultData.textContent += Number(allSalary.textContent);
             } 
             
         });
@@ -297,6 +296,86 @@ document.getElementById('tabAddButton').addEventListener('click', function () {
 
 
 
+// 근무시간 계산
+function minutesWorked(dateInput, startTimeInput, endTimeInput){
+
+    // 예외처리(날짜 시간)
+    if (!dateInput || !startTimeInput || !endTimeInput) {
+        alert("모든 날짜와 시간을 입력하세요.");
+        console.log(this.dateInput);
+        return;
+    }
+
+    // 시작 시간과 종료 시간을 Date 객체로 변환
+    const startDateTime = new Date(`${dateInput}T${startTimeInput}`);
+    const endDateTime = new Date(`${dateInput}T${endTimeInput}`);
+
+    // 시간 차이를 분 단위로 계산
+    const minutesWorked = (endDateTime - startDateTime) / (1000 * 60); // 밀리초 -> 분 변환
+
+    return minutesWorked;
+}
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// 함수 모음
+
+// 입력 값 예외처리
+function exception(employeeName, wagePerMinute, workRecord){
+    if (!employeeName) {
+        alert("직원 이름을 입력하세요.");
+        return;
+    }
+
+    if (isNaN(wagePerMinute) || wagePerMinute <= 0) {
+        alert("유효한 분당 급여를 입력하세요.");
+        return;
+    }
+    if(workRecord===0){
+        alert("근무기록이 입력되지 않았습니다.");
+        return;
+    }
+
+}
+
+// 근무기록 예외처리
+function inputException(dateInput, startTimeInput, endTimeInput){
+    if (!dateInput || !startTimeInput || !endTimeInput) {
+        alert("모든 날짜와 시간을 입력하세요.");
+        calculateFlag = false;
+        return;
+    }
+}
+
+// 근무시간 계산
+    // 시작 시간과 종료 시간을 Date 객체로 변환
+    function calculateDate(dateInput, startTimeInput, endTimeInput){
+        const startDateTime = new Date(`${dateInput}T${startTimeInput}`);
+        const endDateTime = new Date(`${dateInput}T${endTimeInput}`);
+
+        // 시간 차이를 분 단위로 계산
+        const minutesWorked = (endDateTime - startDateTime) / (1000 * 60); // 밀리초 -> 분 변환
+
+        if (minutesWorked <= 0) {
+            alert("종료 시간이 시작 시간보다 빨라서는 안 됩니다.");
+            calculateFlag = false;
+            return;
+        }
+        return minutesWorked;
+    }
+
+
+
+
+
+
+
+
+
+////////함수 모음 끝//////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
